@@ -29,7 +29,7 @@ The logistic regression model is a simple yet effective linear model used for bi
 
 Model Training
 
-Optimizer: Stochastic Gradient Descent (SGD) is used for training.
+Optimizer: Stochastic Gradient Descent (SGD) is used for training.             
 Loss Function: The model is trained using Cross-Entropy Loss, suitable for classification tasks.
 
 Customization
@@ -42,5 +42,5 @@ Data Compression: Enable or modify the single-bit compression logic for model up
 Results
 
 After training for several federated learning rounds, the model achieve accuracy like:  
-Training Accuracy: 95%           
+Training Accuracy: ~93%           
 (Note: Actual results may vary based on the dataset and federated learning setup.)
