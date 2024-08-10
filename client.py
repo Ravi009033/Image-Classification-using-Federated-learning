@@ -6,15 +6,25 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split
 import numpy as np
 
-# Define the Logistic Regression model in PyTorch
-class LogisticRegressionModel(nn.Module):
-    def __init__(self, input_dim, output_dim):
-        super(LogisticRegressionModel, self).__init__()
-        self.linear = nn.Linear(input_dim, output_dim)
-    
+import torch.nn.functional as F
+
+# Define the CNN model in PyTorch
+class CNNModel(nn.Module):
+    def __init__(self):
+        super(CNNModel, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+        self.fc1 = nn.Linear(64 * 7 * 7, 128)
+        self.fc2 = nn.Linear(128, 10)
+
     def forward(self, x):
-        outputs = self.linear(x)
-        return outputs
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 64 * 7 * 7)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
 
 # Shared randomness seed
 shared_seed = 42
@@ -59,7 +69,6 @@ class FLClient(fl.client.NumPyClient):
         self.model.train()
         for epoch in range(1):  # Train for 1 epoch
             for batch_idx, (data, target) in enumerate(self.train_loader):
-                data = data.view(data.size(0), -1)
                 self.optimizer.zero_grad()
                 output = self.model(data)
                 loss = self.criterion(output, target)
@@ -74,7 +83,6 @@ class FLClient(fl.client.NumPyClient):
         correct = 0
         with torch.no_grad():
             for data, target in self.val_loader:
-                data = data.view(data.size(0), -1)
                 output = self.model(data)
                 loss += self.criterion(output, target).item()
                 pred = output.argmax(dim=1, keepdim=True)
@@ -95,12 +103,8 @@ class FLClient(fl.client.NumPyClient):
         decompressed_params = [param.astype(np.float32) * 2 - 1 for param in compressed_params]
         return decompressed_params
 
-# Model parameters
-input_dim = 28 * 28  # MNIST images are 28x28 pixels
-output_dim = 10      # 10 classes for the digits 0-9
-
 # Initialize the model
-model = LogisticRegressionModel(input_dim, output_dim)
+model = CNNModel()
 
 # Create a client
 client = FLClient(model, train_loader, val_loader)
