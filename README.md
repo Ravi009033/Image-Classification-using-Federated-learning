@@ -37,4 +37,4 @@ Federated learning enables training a global model across multiple clients, each
 # 📊 Results
 - Use Case Tested: MNIST digit classification
 - Achieved Accuracy: ~96% training accuracy after federated training
-Note: Actual performance may vary based on the number of clients, local epochs, communication rounds, and system configurations.
+(Note: Actual performance may vary based on the number of clients, local epochs, communication rounds, and system configurations.)
